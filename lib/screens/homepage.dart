@@ -1,12 +1,14 @@
+import 'dart:developer';
 import 'package:bloc_chatapp/models/userModel.dart';
+import 'package:bloc_chatapp/screens/loginpage.dart';
 import 'package:bloc_chatapp/screens/profileupload.dart';
 import 'package:bloc_chatapp/screens/searchpage.dart';
-import 'package:bloc_chatapp/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import '../tiles/chat_tile.dart';
+import '../models/ChatroomModel.dart';
+import '../models/firebasehelper.dart';
 import 'chatpage.dart';
 
 final _auth = FirebaseAuth.instance;
@@ -25,43 +27,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<String> AllData = [];
-
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      getCurrentUser();
-    });
-  }
-
-  void getCurrentUser() async {
-    try {
-      final user = await _auth.currentUser;
-      if (user != null) {
-        loggedInUser = user;
-        print(loggedInUser.email);
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future getIds() async {
-    AllData = [];
-    await FirebaseFirestore.instance
-        .collection('users')
-        .get()
-        .then((snapshot) => snapshot.docs.forEach((element) {
-              print(element.reference);
-              AllData.add(element.reference.id);
-            }));
-  }
 
   void navToChatPage() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return ChatPage();
-    }));
+    // Navigator.push(context, MaterialPageRoute(builder: (context) {
+    //   return ChatPage();
+    // }));
   }
 
   void logoutSnackBar() {
@@ -125,7 +95,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               _auth.signOut();
               GoogleSignIn().signOut();
-              Navigator.pop(context);
+              navigateToLoginPage();
               logoutSnackBar();
             },
             icon: Icon(
@@ -135,28 +105,92 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          SizedBox(
-            height: 10,
-          ),
-          Expanded(
-            child: FutureBuilder(
-              future: getIds(),
-              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                return ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: AllData.length,
-                    itemBuilder: (BuildContext context, index) {
-                      return Padding(
-                          padding: const EdgeInsets.all(5),
-                          child: ChatTile(documentId: AllData[index]));
-                    });
-              },
-            ),
-          ),
-        ],
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection("chatrooms").where("participants.${widget.userModel.uid}", isEqualTo: true).snapshots(),
+        builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
+          if(snapshot.connectionState == ConnectionState.active) {
+            if(snapshot.hasData) {
+              QuerySnapshot chatRoomSnapshot = snapshot.data as QuerySnapshot;
+
+              return ListView.builder(
+                itemCount: chatRoomSnapshot.docs.length,
+                itemBuilder: (context, index) {
+                  ChatRoomModel chatRoomModel = ChatRoomModel.fromMap(chatRoomSnapshot.docs[index].data() as Map<String, dynamic>);
+                  log(chatRoomModel.participants.toString());
+
+                  Map<String, dynamic> participants = chatRoomModel.participants!;
+
+                  List<String> participantKeys = participants.keys.toList();
+                  participantKeys.remove(widget.userModel.uid);
+
+                  return FutureBuilder(
+                    future: FirebaseHelper.getUserModelbyId(participantKeys[0]),
+                    builder: (context, userData) {
+                      if(userData.connectionState == ConnectionState.done) {
+                        if(userData.data != null) {
+                          UserModel targetUser = userData.data as UserModel;
+
+                          return ListTile(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) {
+                                  return ChatPage(
+                                    chatRoom: chatRoomModel,
+                                    user: widget.user,
+                                    userModel: widget.userModel,
+                                    targetUser: targetUser,
+                                  );
+                                }),
+                              );
+                            },
+                            leading: CircleAvatar(
+                              backgroundImage: NetworkImage(targetUser.profilepic.toString()),
+                            ),
+                            title: Text(targetUser.fullName.toString()),
+                            subtitle: (chatRoomModel.lastMessage.toString() != "") ? Text(chatRoomModel.lastMessage.toString()) : Text("Say hi to your new friend!", style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),),
+                          );
+                        }
+                        else {
+                          return Container();
+                        }
+                      }
+                      else {
+                        return Container();
+                      }
+                    },
+                  );
+                },
+              );
+            }
+            else if(snapshot.hasError) {
+              log("Error no data");
+              return Center(
+                child: Text(snapshot.error.toString()),
+              );
+            }
+            else {
+              return Center(
+                child: Text("No Chats"),
+              );
+            }
+          }
+          else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
       ),
     );
+  }
+
+  void navigateToLoginPage() async {
+    Navigator.popUntil(context, (route) => route.isFirst);
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+      return LoginPage(onTap: () {});
+    }));
   }
 }

@@ -1,13 +1,11 @@
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:bloc_chatapp/components/mybutton.dart';
 import 'package:bloc_chatapp/components/mytext_fields.dart';
 import 'package:bloc_chatapp/screens/homepage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -186,6 +184,20 @@ class _CompleteProfileState extends State<CompleteProfile> {
         padding: const EdgeInsets.all(15.0),
         child: const Text(
           'Profile Created Successfull!!',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      backgroundColor: (Colors.tealAccent),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  snackBarShow() {
+    final snackBar = SnackBar(
+      content: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: const Text(
+          'All Set!!',
           style: TextStyle(color: Colors.white),
         ),
       ),
