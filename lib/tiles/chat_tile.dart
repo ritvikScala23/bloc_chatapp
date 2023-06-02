@@ -19,9 +19,9 @@ class ChatTile extends StatelessWidget {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
 
     void navToChatPage() {
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return ChatPage();
-      }));
+      // Navigator.push(context, MaterialPageRoute(builder: (context) {
+      //   return ChatPage();
+      // }));
     }
 
     return FutureBuilder<DocumentSnapshot>(

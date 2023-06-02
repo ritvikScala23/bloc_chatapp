@@ -1,9 +1,14 @@
+import 'package:bloc_chatapp/models/userModel.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
 class ProfileUpload extends StatefulWidget {
-  const ProfileUpload({Key? key}) : super(key: key);
+  UserModel? userModel;
+  User? user;
+
+  ProfileUpload({required this.userModel, required this.user});
 
   @override
   State<ProfileUpload> createState() => _ProfileUploadState();
@@ -31,41 +36,41 @@ class _ProfileUploadState extends State<ProfileUpload> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(
-                      height: 200.0,
-                      width: 300.0,
-                      child: galleryFile == null
-                          ? CircleAvatar(
-                              radius: 120,
-                              child: CircleAvatar(
-                                radius: 110,
-                                backgroundImage: AssetImage('images/jin.jpeg'),
-                              ),
-                            )
-                          : CircleAvatar(
-                              radius: 120,
-                              child: CircleAvatar(
-                                radius: 110,
-                                backgroundImage: Image.file(
-                                  galleryFile!,
-                                  fit: BoxFit.cover,
-                                ).image,
-                              ),
-                            ),
-                    ),
+                        height: 200.0,
+                        width: 300.0,
+                        child: CircleAvatar(
+                          radius: 120,
+                          child: CircleAvatar(
+                            radius: 110,
+                            backgroundImage: NetworkImage(
+                                widget.userModel!.profilepic.toString()),
+                          ),
+                        )),
                   ],
                 ),
                 SizedBox(
                   height: 30.0,
                 ),
-                ElevatedButton(
-                  style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(
-                          Colors.deepOrange.shade400)),
-                  child: const Text('Select Image'),
-                  onPressed: () {
-                    _showPicker(context: context);
-                  },
+                Text(widget.userModel!.fullName.toString(),style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),),
+                SizedBox(
+                  height: 10.0,
                 ),
+                Text(widget.userModel!.email.toString(),style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),),
+                SizedBox(
+                  height: 30.0,
+                ),
+
+
+
+                // ElevatedButton(
+                //   style: ButtonStyle(
+                //       backgroundColor: MaterialStateProperty.all(
+                //           Colors.deepOrange.shade400)),
+                //   child: const Text('Select Image'),
+                //   onPressed: () {
+                //     _showPicker(context: context);
+                //   },
+//                ),
               ],
             ),
           );

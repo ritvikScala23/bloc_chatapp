@@ -71,9 +71,12 @@ class _RegisterPageState extends State<RegisterPage> {
       backgroundColor: (Colors.tealAccent),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return CompleteProfile(usermodel: newUser, user: credential!.user!,);
+    Navigator.popUntil(context, (route) => route.isFirst);
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+      return CompleteProfile(
+        usermodel: newUser,
+        user: credential!.user!,
+      );
     }));
   }
 
@@ -96,7 +99,8 @@ class _RegisterPageState extends State<RegisterPage> {
           .collection("users")
           .doc(uid)
           .set(newUser.toMap())
-          .then((value) => navigateToCompleteprofile(newUser, credential!.user!));
+          .then(
+              (value) => navigateToCompleteprofile(newUser, credential!.user!));
     }
     setState(() {
       showLoading = false;
