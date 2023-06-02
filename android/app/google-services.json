@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "911245973983",
+    "project_id": "blocchatapp-1dfee",
+    "storage_bucket": "blocchatapp-1dfee.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:911245973983:android:2e6a66df6a6b8c69f48c6a",
+        "android_client_info": {
+          "package_name": "com.example.bloc_chatapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "911245973983-ujj203voqphkf037l0hajf15fe7dbfmp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWfyxkUQpOFpaMoPzCOXwXMtltSjXS2dw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "911245973983-ujj203voqphkf037l0hajf15fe7dbfmp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
